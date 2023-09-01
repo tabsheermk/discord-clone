@@ -16,7 +16,7 @@ export const ourFileRouter = {
     .middleware(() => handelAuth())
     .onUploadComplete(() => {}),
 
-  messageFile: f(["image", "pdf", "video/mp4", "video/mpeg", "audio", "video"])
+  messageFile: f(["image", "pdf"])
     .middleware(() => handelAuth())
     .onUploadComplete(() => {}),
 } satisfies FileRouter;
