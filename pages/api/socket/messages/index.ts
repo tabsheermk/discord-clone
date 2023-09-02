@@ -1,10 +1,11 @@
 import { currentProfilPages } from "@/lib/current-profile-pages";
 import { db } from "@/lib/db";
+import { NextApiResponseServerIo } from "@/types";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponseServerIo
 ) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
@@ -83,6 +84,10 @@ export default async function handler(
         },
       },
     });
+
+    const channelKey = `chat:${channelId}:messages`;
+
+    res?.socket?.server?.io?.emit(channelKey, message);
 
     return res.status(200).json(message);
   } catch (error) {
