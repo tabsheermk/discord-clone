@@ -1,16 +1,7 @@
 "use client";
 
-import { useModal } from "@/hooks/use-modal-store";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
-import { ServerWithMembersWithProfiles } from "@/types";
-import { ScrollArea } from "../ui/scroll-area";
-import { UserAvatar } from "../user-avatar";
+import axios from "axios";
+import qs from "query-string";
 import {
   Check,
   Gavel,
@@ -22,6 +13,20 @@ import {
   ShieldQuestion,
 } from "lucide-react";
 import { useState } from "react";
+import { MemberRole } from "@prisma/client";
+import { useRouter } from "next/navigation";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useModal } from "@/hooks/use-modal-store";
+import { ServerWithMembersWithProfiles } from "@/types";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { UserAvatar } from "@/components/user-avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,26 +37,21 @@ import {
   DropdownMenuSubContent,
   DropdownMenuTrigger,
   DropdownMenuSubTrigger,
-} from "../ui/dropdown-menu";
-import { MemberRole } from "@prisma/client";
-import qs from "query-string";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+} from "@/components/ui/dropdown-menu";
 
 const roleIconMap = {
   GUEST: null,
   MODERATOR: <ShieldCheck className="h-4 w-4 ml-2 text-indigo-500" />,
-  ADMIN: <ShieldAlert className="h-4 w-4 ml-2 text-rose-500" />,
+  ADMIN: <ShieldAlert className="h-4 w-4 text-rose-500" />,
 };
 
 export const MembersModal = () => {
+  const router = useRouter();
   const { onOpen, isOpen, onClose, type, data } = useModal();
   const [loadingId, setLoadingId] = useState("");
-  const router = useRouter();
-
-  const { server } = data as { server: ServerWithMembersWithProfiles };
 
   const isModalOpen = isOpen && type === "members";
+  const { server } = data as { server: ServerWithMembersWithProfiles };
 
   const onKick = async (memberId: string) => {
     try {
@@ -62,7 +62,9 @@ export const MembersModal = () => {
           serverId: server?.id,
         },
       });
+
       const response = await axios.delete(url);
+
       router.refresh();
       onOpen("members", { server: response.data });
     } catch (error) {
@@ -83,6 +85,7 @@ export const MembersModal = () => {
       });
 
       const response = await axios.patch(url, { role });
+
       router.refresh();
       onOpen("members", { server: response.data });
     } catch (error) {
@@ -108,7 +111,7 @@ export const MembersModal = () => {
             <div key={member.id} className="flex items-center gap-x-2 mb-6">
               <UserAvatar src={member.profile.imageUrl} />
               <div className="flex flex-col gap-y-1">
-                <div className="text-xs font-semibold flex items-center">
+                <div className="text-xs font-semibold flex items-center gap-x-1">
                   {member.profile.name}
                   {roleIconMap[member.role]}
                 </div>
@@ -124,7 +127,7 @@ export const MembersModal = () => {
                       <DropdownMenuContent side="left">
                         <DropdownMenuSub>
                           <DropdownMenuSubTrigger className="flex items-center">
-                            <ShieldQuestion className="h-4 w-4 mr-2" />
+                            <ShieldQuestion className="w-4 h-4 mr-2" />
                             <span>Role</span>
                           </DropdownMenuSubTrigger>
                           <DropdownMenuPortal>
