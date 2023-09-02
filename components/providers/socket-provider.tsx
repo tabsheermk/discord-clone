@@ -30,12 +30,16 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    socketInstance.on("connect", () => {
+    socketInstance.on("connect", (error: Error) => {
       setIsConnected(true);
     });
 
     socketInstance.on("disconnect", () => {
       setIsConnected(false);
+    });
+
+    socketInstance.on("connect_error", (err: Error) => {
+      console.log(`connect_error due to ${err.message}`);
     });
 
     setSocket(socketInstance);
